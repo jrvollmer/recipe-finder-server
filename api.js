@@ -1,6 +1,11 @@
+// Server
 import { Router } from "express";
+// Database
+import sqlite3 from "sqlite3";
+// Files
+import fs from "fs";
+import path from "path";
 import TEST_RESPONSE from "./test-response.json" assert { type: "json" };
-import sqlite3 from "sqlite3"; // TODO For database
 
 
 
@@ -107,6 +112,44 @@ ROUTER.get("/api", (req, res) => {
 	const temp = res.send({ response: test_response, count: resp_counter }).status(200);
 });
 
+
+ROUTER.get("/image", (req, res) => {
+	console.log("Image request");
+
+	const fname = "pic.png";
+	
+	//const fpath = path.join(__dirname, "pic.png").split("%20").join(" ");
+	const fpath = path.join("./", fname).split("%20").join(" ");
+
+	// Check if the path exists
+	fs.exists(fpath, (exists) => {
+		if(!exists) {
+			res.writeHead(404, { "Content-Type": "text/plain" });
+			res.end("404 Not Found");
+			return;
+		}
+
+		// Extract file extension
+		var ext = path.extname(fname);
+		
+		// Setting default Content-Type
+		var contentType = "text/plain";
+		
+		// Checking if the extension of the image is '.png'
+		if( ext === ".png") {
+			contentType = "image/png";
+		}
+		
+		// Setting the headers
+		res.writeHead(200, { "Content-Type": contentType });
+	
+		// Reading the file
+		fs.readFile(fpath, (err, content) => {
+			// Serving the image
+			res.end(content);
+		});
+	});
+});
 
 
 
