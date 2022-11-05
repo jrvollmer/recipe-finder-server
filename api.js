@@ -1,5 +1,6 @@
-// Server
+// Server and requests
 import { Router } from "express";
+import url from "url";
 // Database
 import sqlite3 from "sqlite3";
 // Files
@@ -105,7 +106,7 @@ const ROUTER = Router();
 
 ROUTER.get("/api", (req, res) => {
 	resp_counter ++;
-	console.log("Get request", resp_counter);
+	console.log("api request", resp_counter);
 	if(resp_counter > 3) {
 		insertIntoTable(test_db, resp_counter, "Name " + resp_counter, 'T');
 	}
@@ -113,14 +114,25 @@ ROUTER.get("/api", (req, res) => {
 });
 
 
-ROUTER.get("/image", (req, res) => {
-	console.log("Image request");
-
-	const fname = "pic.png";
+ROUTER.get("/recipe-images/*", (req, res) => {
+	// TODO Remove
+	console.log("recipe-images request");
 	
-	//const fpath = path.join(__dirname, "pic.png").split("%20").join(" ");
-	const fpath = path.join("./recipe-images/", fname).split("%20").join(" ");
-
+	// Parse the request
+	const request = url.parse(req.url, true);
+	
+	// Get the path from the request
+	const reqPath = request.pathname;
+	
+	// Get file name from request path
+	const fname = reqPath.split('/')[reqPath.split('/').length - 1];//"pic.png";
+	
+	// Create image file path
+	const fpath = path.join(".", reqPath).split("%20").join(" ");
+	
+	// TODO Remove	
+	console.log("Request path: " + reqPath + "\tFile name: " + fname + "\tFile path: " + fpath);
+	
 	// Check if the path exists
 	fs.exists(fpath, (exists) => {
 		if(!exists) {
