@@ -119,7 +119,7 @@ ROUTER.get("/image", (req, res) => {
 	const fname = "pic.png";
 	
 	//const fpath = path.join(__dirname, "pic.png").split("%20").join(" ");
-	const fpath = path.join("./", fname).split("%20").join(" ");
+	const fpath = path.join("./recipe-images/", fname).split("%20").join(" ");
 
 	// Check if the path exists
 	fs.exists(fpath, (exists) => {
