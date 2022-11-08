@@ -164,5 +164,23 @@ ROUTER.get("/recipe-images/*", (req, res) => {
 });
 
 
+ROUTER.post("/upload-image", (req, res) => {
+	console.log("YO");
+	req.on('data', (data) => {
+		//console.log('received data');
+		
+		// Write data to file
+		fs.appendFile('newfile.png', data, (err) => {});
+		//console.log(data);
+	});
+	
+	req.on('end', () => {
+		console.log('ended');
+	});
+	console.log(req);
+	console.log(req.headers);
+});
+
+
 
 export default ROUTER;
