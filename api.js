@@ -5,6 +5,7 @@ import url from "url";
 import sqlite3 from "sqlite3";
 // Files
 import fs from "fs";
+import { existsSync } from 'node:fs';
 import path from "path";
 import TEST_RESPONSE from "./test-response.json" assert { type: "json" };
 
@@ -104,6 +105,7 @@ let resp_counter = 0;
 
 const ROUTER = Router();
 
+// TODO Generic HTTP request that increments a counter
 ROUTER.get("/api", (req, res) => {
 	resp_counter ++;
 	console.log("api request", resp_counter);
@@ -113,7 +115,7 @@ ROUTER.get("/api", (req, res) => {
 	const temp = res.send({ response: test_response, count: resp_counter }).status(200);
 });
 
-
+// HTTP request for retrieving images from the server, where * is replaced by the name of the file to retrieve
 ROUTER.get("/recipe-images/*", (req, res) => {
 	// TODO Remove
 	console.log("recipe-images request");
@@ -163,17 +165,38 @@ ROUTER.get("/recipe-images/*", (req, res) => {
 	});
 });
 
-
+// HTTP request for uploading images to the server
 ROUTER.post("/upload-image", (req, res) => {
+	console.log('upload image request');	
+
+	// Get headers
 	const headers = req.headers;
 	
+	// Get file name from headers
 	const filename = headers['content-disposition'].split('"')[1];
 	
+	// Get file extension from headers
 	const extension = headers['content-type'].split('/')[1];
 	
-	const filepath = './recipe-images/' + filename + '.' + extension;
+	// Set initial file path
+	let filepath = './recipe-images/' + filename + '.' + extension;
+
+	// Initialize the number of duplicate file paths that exist
+	let numDuplicates = 0;
 	
-	console.log("YO");
+	// Add duplicate number to filename if the file already exists
+	// TODO Probably want to remove this during actual implementation since duplicate file names should indicate modifying an image
+	while(existsSync(filepath)) {
+		// A duplicate was found, so generate a new file path/name
+		numDuplicates ++;
+		filepath = `./recipe-images/${filename}_${numDuplicates}.${extension}`;
+		
+		// TODO console.log(filepath);
+	}
+
+	console.log("Generated new file: " + filepath);
+	
+	// Event handler that runs when data is received from the request
 	req.on('data', (data) => {
 		//console.log('received data');
 		
@@ -182,13 +205,14 @@ ROUTER.post("/upload-image", (req, res) => {
 		//console.log(data);
 	});
 	
+	// Event handler that runs when the request ends
 	req.on('end', () => {
 		console.log('ended');
 	});
 	
-	console.log(req);
+	// TODO console.log(req);
 	console.log(req.headers);
-	console.log(filename + '.' + extension);
+	console.log(filepath);
 });
 
 
