@@ -165,20 +165,30 @@ ROUTER.get("/recipe-images/*", (req, res) => {
 
 
 ROUTER.post("/upload-image", (req, res) => {
+	const headers = req.headers;
+	
+	const filename = headers['content-disposition'].split('"')[1];
+	
+	const extension = headers['content-type'].split('/')[1];
+	
+	const filepath = './recipe-images/' + filename + '.' + extension;
+	
 	console.log("YO");
 	req.on('data', (data) => {
 		//console.log('received data');
 		
 		// Write data to file
-		fs.appendFile('newfile.png', data, (err) => {});
+		fs.appendFile(filepath, data, (err) => {});
 		//console.log(data);
 	});
 	
 	req.on('end', () => {
 		console.log('ended');
 	});
+	
 	console.log(req);
 	console.log(req.headers);
+	console.log(filename + '.' + extension);
 });
 
 
