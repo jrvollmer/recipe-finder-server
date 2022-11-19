@@ -19,6 +19,9 @@ pids
 # Databases
 *.db
 
+# Routes
+routes.json
+
 # Images
 recipe-images/*
 

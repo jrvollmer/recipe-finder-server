@@ -1,6 +1,7 @@
 // Server and requests
 import { Router } from "express";
 import url from "url";
+import ROUTES from "./routes.json" assert { type: "json" };
 // Database
 import sqlite3 from "sqlite3";
 // Files
@@ -105,20 +106,22 @@ let resp_counter = 0;
 
 const ROUTER = Router();
 
+
 // TODO Generic HTTP request that increments a counter
-ROUTER.get("/api", (req, res) => {
+ROUTER.get(ROUTES['COUNTER'], (req, res) => {
 	resp_counter ++;
-	console.log("api request", resp_counter);
+	console.log("counter request", resp_counter);
 	if(resp_counter > 3) {
 		insertIntoTable(test_db, resp_counter, "Name " + resp_counter, 'T');
 	}
 	const temp = res.send({ response: test_response, count: resp_counter }).status(200);
 });
 
-// HTTP request for retrieving images from the server, where * is replaced by the name of the file to retrieve
-ROUTER.get("/recipe-images/*", (req, res) => {
+
+// HTTP request for retrieving images from the server
+ROUTER.get(ROUTES['RETRIEVE_IMAGE'], (req, res) => {
 	// TODO Remove
-	console.log("recipe-images request");
+	console.log("retrieve images request");
 	
 	// Parse the request
 	const request = url.parse(req.url, true);
@@ -165,8 +168,9 @@ ROUTER.get("/recipe-images/*", (req, res) => {
 	});
 });
 
+
 // HTTP request for uploading images to the server
-ROUTER.post("/upload-image", (req, res) => {
+ROUTER.post(ROUTES['UPLOAD_IMAGE'], (req, res) => {
 	console.log('upload image request');	
 
 	// Get headers
